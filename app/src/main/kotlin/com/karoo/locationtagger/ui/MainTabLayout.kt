@@ -2,6 +2,7 @@ package com.karoo.locationtagger.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -92,10 +93,16 @@ fun MainTabLayout(viewModel: MainViewModel) {
             }
         }
 
-        // Tab content
-        when (selectedTab) {
-            Tab.NewEntry -> NewEntryTab(viewModel)
-            Tab.SavedPois -> SavedPoisTab(viewModel)
+        // Tab content — scrollable
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
+            when (selectedTab) {
+                Tab.NewEntry -> NewEntryTab(viewModel)
+                Tab.SavedPois -> SavedPoisTab(viewModel)
+            }
         }
     }
 }
