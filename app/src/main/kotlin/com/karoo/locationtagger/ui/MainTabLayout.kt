@@ -1,6 +1,7 @@
 package com.karoo.locationtagger.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -15,9 +17,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karoo.locationtagger.data.PoiType
 
-enum class Tab {
-    NewEntry,
-    SavedPois,
+enum class Tab(val label: String) {
+    NewEntry("Tag"),
+    SavedPois("Points"),
 }
 
 @Composable
@@ -31,29 +33,43 @@ fun MainTabLayout(viewModel: MainViewModel) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Tab bar
+        // Browser-style tab bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(start = 8.dp, end = 8.dp, top = 8.dp)
+                .height(44.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            verticalAlignment = Alignment.Bottom
         ) {
             Tab.entries.forEach { tab ->
-                Button(
-                    onClick = { selectedTab = tab },
-                    colors = if (selectedTab == tab)
-                        ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                    else
-                        ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
+                val isSelected = selectedTab == tab
+                val bgColor = if (isSelected)
+                    MaterialTheme.colorScheme.background
+                else
+                    MaterialTheme.colorScheme.surfaceVariant
+                val contentColor = if (isSelected)
+                    MaterialTheme.colorScheme.onBackground
+                else
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(36.dp)
+                        .clip(
+                            RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)
+                        )
+                        .background(bgColor)
+                        .clickable { selectedTab = tab },
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = when (tab) {
-                            Tab.NewEntry -> "New Entry"
-                            Tab.SavedPois -> "Saved POIs"
-                        },
-                        fontSize = 14.sp,
+                        text = tab.label,
+                        fontSize = 15.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        color = contentColor,
                     )
                 }
             }
