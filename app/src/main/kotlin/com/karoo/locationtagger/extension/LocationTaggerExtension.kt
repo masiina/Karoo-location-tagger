@@ -15,6 +15,7 @@ import io.hammerhead.karooext.extension.KarooExtension
 class LocationTaggerExtension : KarooExtension("karoo-location-tagger", "1.0") {
 
     override val types by lazy {
+        Log.d(TAG, "Creating types list")
         listOf(
             PoiTagDataType("karoo-location-tagger")
         )
@@ -24,16 +25,17 @@ class LocationTaggerExtension : KarooExtension("karoo-location-tagger", "1.0") {
         Log.d(TAG, "onBonusAction called with actionId: $actionId")
         when (actionId) {
             "open-location-tagger" -> openMainActivity()
+            else -> Log.w(TAG, "Unknown actionId: $actionId")
         }
     }
 
     private fun openMainActivity() {
+        Log.d(TAG, "openMainActivity called")
         val intent = Intent(this, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
         }
 
-        // Try direct launch first (works if app has SYSTEM_ALERT_WINDOW
-        // or if the system considers the bound service as having foreground affinity)
+        // Try direct launch first
         try {
             startActivity(intent)
             Log.d(TAG, "Direct startActivity succeeded")
@@ -43,11 +45,9 @@ class LocationTaggerExtension : KarooExtension("karoo-location-tagger", "1.0") {
         }
 
         // Fallback: use a full-screen notification to launch the activity.
-        // This is the Android-recommended approach for background activity launches (Android 10+).
         try {
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            // Create notification channel (required Android 8+)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val channel = NotificationChannel(
                     CHANNEL_ID,
