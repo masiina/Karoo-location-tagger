@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karoo.locationtagger.MainActivity
 import com.karoo.locationtagger.data.GeoUtils
+import kotlinx.coroutines.delay
 
 @Composable
 fun SavedPoisTab(viewModel: MainViewModel) {
@@ -78,11 +79,11 @@ fun PoiCard(
     val poi = poiWithDistance.poi
     val distText = if (hasGpsFix) GeoUtils.formatDistance(poiWithDistance.distanceMeters) else "—"
     val dirArrow = if (hasGpsFix) GeoUtils.directionArrow(poiWithDistance.relativeDirection) else "—"
-    val dirLabel = if (hasGpsFix) GeoUtils.formatDirection(poiWithDistance.relativeDirection) else "—"
+    var confirmDelete by remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = if (confirmDelete) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceVariant,
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(
@@ -107,26 +108,40 @@ fun PoiCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = if (hasGpsFix) "$distText · $dirLabel" else "No GPS",
+                        text = if (hasGpsFix) distText else "No GPS",
                         fontSize = 13.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
 
-            // Delete
-            IconButton(
-                onClick = onDelete,
-                modifier = Modifier
-                    .size(48.dp)
-                    .border(1.dp, MaterialTheme.colorScheme.error, RoundedCornerShape(4.dp))
-            ) {
-                Text("✕", fontSize = 14.sp, color = MaterialTheme.colorScheme.error)
+            // Delete / Confirm
+            if (confirmDelete) {
+                IconButton(
+                    onClick = {
+                        onDelete()
+                    },
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Text("✓", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
+                }
+            } else {
+                IconButton(
+                    onClick = { confirmDelete = true },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .border(1.dp, MaterialTheme.colorScheme.error, RoundedCornerShape(4.dp))
+                ) {
+                    Text("✕", fontSize = 14.sp, color = MaterialTheme.colorScheme.error)
+                }
             }
 
             // Navigate
             Button(
-                onClick = onNavigate,
+                onClick = {
+                    confirmDelete = false
+                    onNavigate()
+                },
                 enabled = hasGpsFix,
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -137,6 +152,14 @@ fun PoiCard(
             ) {
                 Text("Go", fontSize = 14.sp, fontWeight = FontWeight.Bold)
             }
+        }
+    }
+
+    // Auto-reset confirm state after 3 seconds
+    LaunchedEffect(confirmDelete) {
+        if (confirmDelete) {
+            delay(3000)
+            confirmDelete = false
         }
     }
 }
