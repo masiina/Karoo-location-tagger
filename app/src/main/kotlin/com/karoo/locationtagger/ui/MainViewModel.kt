@@ -2,6 +2,7 @@ package com.karoo.locationtagger.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.karoo.locationtagger.data.GeoUtils
 import com.karoo.locationtagger.data.Poi
@@ -32,10 +33,12 @@ data class PoiWithDistance(
     val relativeDirection: Double,
 )
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel(
+    application: Application,
+    private val karooSystem: KarooSystemService,
+) : AndroidViewModel(application) {
 
     private val repo = PoiRepository(application)
-    private val karooSystem = KarooSystemService(application)
 
     private val _locationState = MutableStateFlow(LocationState())
     val locationState: StateFlow<LocationState> = _locationState.asStateFlow()
@@ -65,7 +68,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val saveStatus: StateFlow<String?> = _saveStatus.asStateFlow()
 
     init {
-        karooSystem.connect { }
         viewModelScope.launch {
             karooSystem.consumerFlow<OnLocationChanged>().collect { location ->
                 _locationState.value = LocationState(
@@ -114,6 +116,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     override fun onCleared() {
         super.onCleared()
-        karooSystem.disconnect()
+        // Connection lifecycle is managed by Activity
+    }
+
+    class Factory(
+        private val karooSystem: KarooSystemService,
+        private val application: Application,
+    ) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+            return MainViewModel(application, karooSystem) as T
+        }
     }
 }

@@ -13,8 +13,10 @@ import io.hammerhead.karooext.models.Symbol
 
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: MainViewModel by viewModels()
     private val karooSystem by lazy { KarooSystemService(this) }
+    private val viewModel: MainViewModel by viewModels {
+        MainViewModel.Factory(karooSystem, application)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -9,7 +9,6 @@ data class Poi(
     val lng: Double,
     val type: PoiType,
     val potential: Int,
-    val timestamp: Long = System.currentTimeMillis(),
 ) {
     val displayName: String
         get() = "${type.name} $potential"

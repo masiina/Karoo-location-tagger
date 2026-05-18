@@ -52,9 +52,11 @@ class PoiRepository(private val context: Context) {
     }
 
     suspend fun nextId(): Long {
-        val prefs = context.dataStore.data.first()
-        val id = prefs[NEXT_ID_KEY] ?: 1L
-        context.dataStore.edit { it[NEXT_ID_KEY] = id + 1 }
+        var id = 1L
+        context.dataStore.edit { prefs ->
+            id = prefs[NEXT_ID_KEY] ?: 1L
+            prefs[NEXT_ID_KEY] = id + 1
+        }
         return id
     }
 }
