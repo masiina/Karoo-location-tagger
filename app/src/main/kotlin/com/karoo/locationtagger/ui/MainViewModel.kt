@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.coroutines.FlowPreview::class)
+
 package com.karoo.locationtagger.ui
 
 import android.app.Application
@@ -16,6 +18,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -45,7 +49,10 @@ class MainViewModel(
 
     val pois = repo.pois
 
-    val poisWithDistance: StateFlow<List<PoiWithDistance>> = combine(pois, _locationState) { poiList, loc ->
+    val poisWithDistance: StateFlow<List<PoiWithDistance>> = combine(
+        pois,
+        _locationState.debounce(300).distinctUntilChanged()
+    ) { poiList, loc ->
         if (!loc.hasFix) {
             poiList.map { PoiWithDistance(it, 0.0, 0.0, 0.0) }
         } else {
@@ -68,6 +75,9 @@ class MainViewModel(
     val saveStatus: StateFlow<String?> = _saveStatus.asStateFlow()
 
     init {
+        viewModelScope.launch {
+            repo.initialize()
+        }
         viewModelScope.launch {
             karooSystem.consumerFlow<OnLocationChanged>().collect { location ->
                 _locationState.value = LocationState(
