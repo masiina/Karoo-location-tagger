@@ -32,7 +32,7 @@ fun SavedPoisTab(viewModel: MainViewModel) {
             Text(
                 text = "No POIs saved yet",
                 fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         return
@@ -92,7 +92,7 @@ fun PoiCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${poi.type.name} — Potential ${poi.potential}",
+                    text = "${poi.type.name} ${"●".repeat(poi.potential)}${"○".repeat(3 - poi.potential)}",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -110,7 +110,7 @@ fun PoiCard(
             Text(
                 text = "%.5f, %.5f".format(poi.lat, poi.lng),
                 fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -137,7 +137,7 @@ fun PoiCard(
                         Text(
                             text = dirLabel,
                             fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

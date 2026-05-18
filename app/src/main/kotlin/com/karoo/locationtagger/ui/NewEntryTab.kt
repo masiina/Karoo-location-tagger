@@ -1,5 +1,6 @@
 package com.karoo.locationtagger.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -96,12 +97,20 @@ fun NewEntryTab(viewModel: MainViewModel) {
         Spacer(modifier = Modifier.weight(1f))
 
         // Save button
+        val saveEnabled = locationState.hasFix
         Button(
             onClick = { viewModel.savePoi() },
-            enabled = locationState.hasFix,
+            enabled = saveEnabled,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .height(56.dp)
+                .then(
+                    if (!saveEnabled) Modifier.border(
+                        1.dp,
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                        RoundedCornerShape(12.dp)
+                    ) else Modifier
+                ),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
@@ -109,7 +118,7 @@ fun NewEntryTab(viewModel: MainViewModel) {
             )
         ) {
             Text(
-                text = "Save POI",
+                text = if (saveEnabled) "Save POI" else "No GPS — Save disabled",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
