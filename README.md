@@ -9,6 +9,7 @@ A Hammerhead Karoo 3 bicycle computer extension for tagging and navigating to po
 - **Navigate to POI** — Drops a pin on the Karoo map and starts turn-by-turn navigation
 - **Offline-first** — All data stored locally using DataStore, no internet needed
 - **WCAG-accessible** — 48dp touch targets, icon+text indicators (never color alone), contrast-compliant palette
+- **Release-optimized** — R8 minification and resource shrinking enabled for smaller APKs
 
 ## Installation
 
@@ -86,11 +87,12 @@ app/src/main/
 - Registers `PoiTagDataType` (shows "📍 Tag" on ride page)
 - Handles `onBonusAction("open-location-tagger")` by sending a broadcast
 - **Broadcast pattern**: Android 10+ blocks `startActivity()` from background services, so `onBonusAction` sends a broadcast to `OpenAppReceiver` which launches `MainActivity`
+- **KarooSystemService lifecycle**: Created in `MainActivity` and injected into `MainViewModel` via `ViewModelProvider.Factory`; connection/disconnection managed by the Activity, not the ViewModel
 
 #### Data Layer
 
-- **`Poi`**: Kotlin data class with `@Serializable`, stored as JSON in DataStore
-- **`PoiRepository`**: CRUD operations over DataStore Preferences with auto-incrementing IDs
+- **`Poi`**: Kotlin data class with `@Serializable`, stored as JSON in DataStore (no redundant `timestamp` field)
+- **`PoiRepository`**: CRUD over DataStore Preferences with auto-incrementing IDs. Uses an in-memory `MutableStateFlow` cache to avoid repeated deserialization; must call `initialize()` once at startup. Includes error handling with logging for DataStore read/write failures.
 - **`GeoUtils`**: Pure Kotlin Haversine formula for distance/bearing — no external map SDK needed
 
 #### UI Layer
@@ -98,7 +100,7 @@ app/src/main/
 - **`MainTabLayout`**: Browser-style tabs ("Tag" / "Points") with GPS status indicator
 - **`NewEntryTab`**: Type selector (MTB/Road), potential selector (1/2/3), save button
 - **`SavedPoisTab`**: Compact list with direction arrow, distance, delete confirmation, navigate button
-- **`MainViewModel`**: Combines GPS location flow with POI list to compute distance/direction
+- **`MainViewModel`**: Combines GPS location flow (debounced 300ms, distinct) with POI list to compute distance/direction. Accepts `KarooSystemService` via constructor through a `ViewModelProvider.Factory` — lifecycle of the Karoo connection is managed by the Activity, not the ViewModel.
 
 #### Pin Drop Navigation
 
@@ -112,6 +114,14 @@ karooSystem.dispatch(
 ```
 
 This tells the Karoo to drop a pin on the map and offer turn-by-turn navigation to the target coordinates.
+
+### ProGuard / R8
+
+Release builds enable R8 minification and resource shrinking (`isMinifyEnabled = true`, `isShrinkResources = true`). The ProGuard rules in `proguard-rules.pro` keep:
+- Karoo Extension SDK classes and subclasses
+- `kotlinx.serialization` serializer access (reflection-based)
+- All `@Serializable` data classes in the `data` package
+- Android components (`MainActivity`, `LocationTaggerExtension`, `OpenAppReceiver`, `PoiTagDataType`)
 
 ## Dependencies
 
@@ -142,6 +152,8 @@ This tells the Karoo to drop a pin on the map and offer turn-by-turn navigation 
 | `targetSdk` / `compileSdk` | 34 |
 | `kotlin` | 2.0.0 |
 | `AGP` | 8.2.2 |
+| `R8 minification` | Enabled for release |
+| `Resource shrinking` | Enabled for release |
 
 ## License
 
