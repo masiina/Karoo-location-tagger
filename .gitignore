@@ -1,0 +1,26 @@
+# Built application files
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Gradle build output
+build/
+.gradle/
+.kotlin/
+
+# Local configuration
+local.properties
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local maven repo (derived from cache)
+local-maven-repo/

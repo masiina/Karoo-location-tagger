@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ExtensionInfo
+    displayName="@string/extension_name"
+    icon="@drawable/ic_launcher_foreground"
+    id="karoo-location-tagger"
+    scansDevices="false">
+    <BonusAction
+        actionId="open-location-tagger"
+        displayName="@string/action_display_name" />
+</ExtensionInfo>

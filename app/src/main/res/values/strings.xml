@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Location Tagger</string>
+    <string name="extension_name">Location Tagger</string>
+    <string name="action_display_name">Tag Location</string>
+    <string name="tab_new_entry">New Entry</string>
+    <string name="tab_saved_pois">Saved POIs</string>
+    <string name="type_mtb">MTB</string>
+    <string name="type_road">Road</string>
+    <string name="potential_1">1</string>
+    <string name="potential_2">2</string>
+    <string name="potential_3">3</string>
+    <string name="save">Save</string>
+    <string name="navigate">Navigate</string>
+    <string name="delete">Delete</string>
+    <string name="no_pois_saved">No POIs saved yet</string>
+    <string name="waiting_for_gps">Waiting for GPS…</string>
+    <string name="poi_saved">POI saved!</string>
+    <string name="label_type">Type</string>
+    <string name="label_potential">Potential</string>
+</resources>
