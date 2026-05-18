@@ -4,6 +4,12 @@
     icon="@drawable/ic_launcher_foreground"
     id="karoo-location-tagger"
     scansDevices="false">
+    <DataType
+        typeId="poi-tag"
+        description="@string/data_type_description"
+        displayName="@string/data_type_display_name"
+        graphical="true"
+        icon="@drawable/ic_launcher_foreground" />
     <BonusAction
         actionId="open-location-tagger"
         displayName="@string/action_display_name" />

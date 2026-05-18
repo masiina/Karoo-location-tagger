@@ -17,4 +17,6 @@
     <string name="poi_saved">POI saved!</string>
     <string name="label_type">Type</string>
     <string name="label_potential">Potential</string>
+    <string name="data_type_display_name">Tag Location</string>
+    <string name="data_type_description">Press to tag a location</string>
 </resources>

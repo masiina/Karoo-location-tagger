@@ -6,6 +6,12 @@ import io.hammerhead.karooext.extension.KarooExtension
 
 class LocationTaggerExtension : KarooExtension("karoo-location-tagger", "1.0") {
 
+    override val types by lazy {
+        listOf(
+            PoiTagDataType("karoo-location-tagger")
+        )
+    }
+
     override fun onBonusAction(actionId: String) {
         when (actionId) {
             "open-location-tagger" -> {
