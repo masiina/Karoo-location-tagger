@@ -1,5 +1,6 @@
 package com.karoo.locationtagger.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -98,7 +99,9 @@ fun PoiCard(
                 )
                 IconButton(
                     onClick = onDelete,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier
+                        .size(48.dp)
+                        .border(1.dp, MaterialTheme.colorScheme.error, RoundedCornerShape(4.dp))
                 ) {
                     Text("✕", fontSize = 16.sp, color = MaterialTheme.colorScheme.error)
                 }

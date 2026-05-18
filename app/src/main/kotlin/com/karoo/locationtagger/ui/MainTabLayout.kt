@@ -59,7 +59,7 @@ fun MainTabLayout(viewModel: MainViewModel) {
             }
         }
 
-        // GPS status indicator
+        // GPS status indicator — icon + text, never color alone
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -67,8 +67,8 @@ fun MainTabLayout(viewModel: MainViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = if (locationState.hasFix) "GPS ●" else "GPS ○",
-                color = if (locationState.hasFix) Color(0xFF4CAF50) else Color(0xFFF44336),
+                text = if (locationState.hasFix) "📍 GPS ready" else "⏳ Acquiring GPS",
+                color = if (locationState.hasFix) Color(0xFF4CAF50) else Color(0xFFFFA000),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
             )
