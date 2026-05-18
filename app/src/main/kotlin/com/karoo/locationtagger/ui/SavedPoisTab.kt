@@ -43,7 +43,7 @@ fun SavedPoisTab(viewModel: MainViewModel) {
             .fillMaxSize()
             .padding(horizontal = 16.dp)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Spacer(modifier = Modifier.height(4.dp))
 
@@ -83,76 +83,59 @@ fun PoiCard(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceVariant,
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(8.dp)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // Type + dots + direction
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "${poi.type.name} ${"●".repeat(poi.potential)}${"○".repeat(3 - poi.potential)}",
-                    fontSize = 16.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                IconButton(
-                    onClick = onDelete,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .border(1.dp, MaterialTheme.colorScheme.error, RoundedCornerShape(4.dp))
-                ) {
-                    Text("✕", fontSize = 16.sp, color = MaterialTheme.colorScheme.error)
-                }
-            }
-
-            Text(
-                text = "%.5f, %.5f".format(poi.lat, poi.lng),
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = dirArrow,
-                        fontSize = 28.sp,
+                        fontSize = 18.sp,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column {
-                        Text(
-                            text = distText,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = dirLabel,
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                Button(
-                    onClick = onNavigate,
-                    enabled = hasGpsFix,
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (hasGpsFix) "$distText · $dirLabel" else "No GPS",
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                ) {
-                    Text("Navigate", fontSize = 14.sp)
                 }
+            }
+
+            // Delete
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier
+                    .size(48.dp)
+                    .border(1.dp, MaterialTheme.colorScheme.error, RoundedCornerShape(4.dp))
+            ) {
+                Text("✕", fontSize = 14.sp, color = MaterialTheme.colorScheme.error)
+            }
+
+            // Navigate
+            Button(
+                onClick = onNavigate,
+                enabled = hasGpsFix,
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                ),
+                modifier = Modifier.padding(start = 4.dp)
+            ) {
+                Text("Go", fontSize = 14.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
