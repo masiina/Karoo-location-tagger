@@ -44,4 +44,5 @@ dependencies {
     implementation(libs.bundles.compose.ui)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
+    implementation("com.google.zxing:core:3.5.3")
 }

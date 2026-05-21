@@ -21,22 +21,19 @@ import kotlinx.coroutines.delay
 fun SavedPoisTab(viewModel: MainViewModel) {
     val poisWithDistance by viewModel.poisWithDistance.collectAsState()
     val locationState by viewModel.locationState.collectAsState()
+    val uploadState by viewModel.uploadState.collectAsState()
     val context = LocalContext.current
 
-    if (poisWithDistance.isEmpty()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "No POIs saved yet",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+    // QR dialog state
+    when (val state = uploadState) {
+        is UploadState.Success -> {
+            QrCodeDialog(
+                mapUrl = state.url,
+                qrBitmap = state.qrBitmap,
+                onDismiss = { viewModel.resetUploadState() },
             )
         }
-        return
+        else -> { /* handled below */ }
     }
 
     Column(
@@ -48,21 +45,89 @@ fun SavedPoisTab(viewModel: MainViewModel) {
     ) {
         Spacer(modifier = Modifier.height(4.dp))
 
-        poisWithDistance.forEach { poiWithDist ->
-            val poi = poiWithDist.poi
-
-            PoiCard(
-                poiWithDistance = poiWithDist,
-                hasGpsFix = locationState.hasFix,
-                onNavigate = {
-                    (context as? MainActivity)?.dispatchPinDrop(
-                        lat = poi.lat,
-                        lng = poi.lng,
-                        name = poi.displayName,
+        // Share button row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            when (uploadState) {
+                is UploadState.Uploading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
                     )
-                },
-                onDelete = { viewModel.removePoi(poi.id) }
-            )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Uploading…",
+                        fontSize = 14.sp,
+                        modifier = Modifier.align(alignment = Alignment.CenterVertically),
+                    )
+                }
+                is UploadState.Error -> {
+                    val errorMsg = (uploadState as UploadState.Error).message
+                    Text(
+                        text = errorMsg,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.align(alignment = Alignment.CenterVertically),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = { viewModel.uploadPois() },
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                    ) {
+                        Text("Retry", fontSize = 13.sp)
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                else -> {
+                    if (poisWithDistance.isNotEmpty()) {
+                        Button(
+                            onClick = { viewModel.uploadPois() },
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary,
+                            ),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
+                        ) {
+                            Text("Share ↗", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+
+        if (poisWithDistance.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No POIs saved yet",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            poisWithDistance.forEach { poiWithDist ->
+                val poi = poiWithDist.poi
+
+                PoiCard(
+                    poiWithDistance = poiWithDist,
+                    hasGpsFix = locationState.hasFix,
+                    onNavigate = {
+                        (context as? MainActivity)?.dispatchPinDrop(
+                            lat = poi.lat,
+                            lng = poi.lng,
+                            name = poi.displayName,
+                        )
+                    },
+                    onDelete = { viewModel.removePoi(poi.id) }
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))

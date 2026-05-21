@@ -82,9 +82,20 @@ fun MainTabLayout(viewModel: MainViewModel) {
                 .padding(horizontal = 16.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val ageSeconds = locationState.ageSeconds
+            val gpsText = when {
+                !locationState.hasFix -> "⏳ Acquiring GPS"
+                ageSeconds != null && ageSeconds > 10 -> "⚠ GPS ${ageSeconds}s old"
+                else -> "📍 GPS ready"
+            }
+            val gpsColor = when {
+                !locationState.hasFix -> Color(0xFFFFA000)
+                ageSeconds != null && ageSeconds > 10 -> Color(0xFFFFA000)
+                else -> Color(0xFF4CAF50)
+            }
             Text(
-                text = if (locationState.hasFix) "📍 GPS ready" else "⏳ Acquiring GPS",
-                color = if (locationState.hasFix) Color(0xFF4CAF50) else Color(0xFFFFA000),
+                text = gpsText,
+                color = gpsColor,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
             )
