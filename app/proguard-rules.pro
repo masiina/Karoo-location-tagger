@@ -29,3 +29,7 @@
 -keep class com.karoo.locationtagger.extension.LocationTaggerExtension { *; }
 -keep class com.karoo.locationtagger.extension.OpenAppReceiver { *; }
 -keep class com.karoo.locationtagger.extension.PoiTagDataType { *; }
+
+# ── ZXing (QR code generation) ──
+-keep class com.google.zxing.** { *; }
+-dontwarn com.google.zxing.**

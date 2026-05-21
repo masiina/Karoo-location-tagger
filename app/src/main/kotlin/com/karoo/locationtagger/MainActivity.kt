@@ -9,12 +9,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.karoo.locationtagger.theme.AppTheme
 import com.karoo.locationtagger.ui.MainTabLayout
 import com.karoo.locationtagger.ui.MainViewModel
 import io.hammerhead.karooext.KarooSystemService
 import io.hammerhead.karooext.models.LaunchPinDrop
 import io.hammerhead.karooext.models.Symbol
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -39,6 +41,13 @@ class MainActivity : ComponentActivity() {
         karooSystem.connect { }
 
         requestLocationPermissionsIfNeeded()
+
+        // Collect navigation events from ViewModel
+        lifecycleScope.launch {
+            viewModel.navigateEvents.collect { (lat, lng, name) ->
+                dispatchPinDrop(lat, lng, name)
+            }
+        }
 
         setContent {
             AppTheme {

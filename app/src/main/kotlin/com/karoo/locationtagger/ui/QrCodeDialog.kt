@@ -1,5 +1,6 @@
 package com.karoo.locationtagger.ui
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -83,7 +84,11 @@ fun QrCodeDialog(
                 OutlinedButton(
                     onClick = {
                         val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(mapUrl))
-                        context.startActivity(intent)
+                        try {
+                            context.startActivity(intent)
+                        } catch (_: ActivityNotFoundException) {
+                            // No browser available on device
+                        }
                     },
                     modifier = Modifier.weight(1f),
                 ) {
@@ -97,7 +102,11 @@ fun QrCodeDialog(
                             putExtra(Intent.EXTRA_TEXT, "View my cycling POIs: $mapUrl")
                         }
                         val chooser = Intent.createChooser(sendIntent, "Share map link")
-                        context.startActivity(chooser)
+                        try {
+                            context.startActivity(chooser)
+                        } catch (_: ActivityNotFoundException) {
+                            // No app available to share
+                        }
                     },
                     modifier = Modifier.weight(1f),
                 ) {

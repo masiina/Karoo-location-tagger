@@ -97,7 +97,9 @@ fun NewEntryTab(viewModel: MainViewModel) {
         Spacer(modifier = Modifier.weight(1f))
 
         // Save button
-        val saveEnabled = locationState.hasFix
+        val ageSeconds = locationState.ageSeconds
+        val isLocationStale = ageSeconds != null && ageSeconds > 10
+        val saveEnabled = locationState.hasFix && !isLocationStale
         Button(
             onClick = { viewModel.savePoi() },
             enabled = saveEnabled,
@@ -118,7 +120,7 @@ fun NewEntryTab(viewModel: MainViewModel) {
             )
         ) {
             Text(
-                text = if (saveEnabled) "Save POI" else "No GPS — Save disabled",
+                text = if (!locationState.hasFix) "No GPS — Save disabled" else if (isLocationStale) "GPS stale — Move to refresh" else "Save POI",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )

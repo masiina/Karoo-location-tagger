@@ -9,11 +9,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.karoo.locationtagger.MainActivity
 import com.karoo.locationtagger.data.GeoUtils
 import kotlinx.coroutines.delay
 
@@ -22,7 +20,6 @@ fun SavedPoisTab(viewModel: MainViewModel) {
     val poisWithDistance by viewModel.poisWithDistance.collectAsState()
     val locationState by viewModel.locationState.collectAsState()
     val uploadState by viewModel.uploadState.collectAsState()
-    val context = LocalContext.current
 
     // QR dialog state
     when (val state = uploadState) {
@@ -113,20 +110,20 @@ fun SavedPoisTab(viewModel: MainViewModel) {
             }
         } else {
             poisWithDistance.forEach { poiWithDist ->
-                val poi = poiWithDist.poi
-
-                PoiCard(
-                    poiWithDistance = poiWithDist,
-                    hasGpsFix = locationState.hasFix,
-                    onNavigate = {
-                        (context as? MainActivity)?.dispatchPinDrop(
-                            lat = poi.lat,
-                            lng = poi.lng,
-                            name = poi.displayName,
-                        )
-                    },
-                    onDelete = { viewModel.removePoi(poi.id) }
-                )
+                key(poiWithDist.poi.id) {
+                    PoiCard(
+                        poiWithDistance = poiWithDist,
+                        hasGpsFix = locationState.hasFix,
+                        onNavigate = {
+                            viewModel.requestNavigation(
+                                lat = poiWithDist.poi.lat,
+                                lng = poiWithDist.poi.lng,
+                                name = poiWithDist.poi.displayName,
+                            )
+                        },
+                        onDelete = { viewModel.removePoi(poiWithDist.poi.id) }
+                    )
+                }
             }
         }
 

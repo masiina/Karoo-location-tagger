@@ -26,6 +26,7 @@ import io.hammerhead.karooext.KarooSystemService
 import io.hammerhead.karooext.models.OnLocationChanged
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -106,6 +107,8 @@ class MainViewModel(
 
     private val _uploadState = MutableStateFlow<UploadState>(UploadState.Idle)
     val uploadState: StateFlow<UploadState> = _uploadState.asStateFlow()
+
+    val navigateEvents = MutableSharedFlow<Triple<Double, Double, String>>()
 
     // Android LocationManager as fallback GPS source
     private val androidLocationManager = application.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -227,8 +230,15 @@ class MainViewModel(
         }
     }
 
+    fun requestNavigation(lat: Double, lng: Double, name: String) {
+        viewModelScope.launch {
+            navigateEvents.emit(Triple(lat, lng, name))
+        }
+    }
+
     fun uploadPois() {
         if (poisWithDistance.value.isEmpty()) return
+        if (_uploadState.value is UploadState.Uploading) return
 
         _uploadState.value = UploadState.Uploading
         viewModelScope.launch {
@@ -251,6 +261,7 @@ class MainViewModel(
     }
 
     fun resetUploadState() {
+        (_uploadState.value as? UploadState.Success)?.qrBitmap?.recycle()
         _uploadState.value = UploadState.Idle
     }
 
@@ -260,11 +271,13 @@ class MainViewModel(
             val writer = QRCodeWriter()
             val bitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, size, size)
             val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.RGB_565)
-            for (x in 0 until size) {
-                for (y in 0 until size) {
-                    bitmap.setPixel(x, y, if (bitMatrix[x, y]) 0xFF000000.toInt() else 0xFFFFFFFF.toInt())
+            val pixels = IntArray(size * size)
+            for (y in 0 until size) {
+                for (x in 0 until size) {
+                    pixels[y * size + x] = if (bitMatrix[x, y]) 0xFF000000.toInt() else 0xFFFFFFFF.toInt()
                 }
             }
+            bitmap.setPixels(pixels, 0, size, 0, 0, size, size)
             bitmap
         }
     }
